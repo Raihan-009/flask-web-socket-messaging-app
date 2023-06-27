@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask Messaging App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
+    <style>
+        .client-container {
+            display: flex;
+        }
+
+        .client-container > div {
+            flex: 1;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Flask Messaging App</h1>
+
+    <div class="client-container">
+        <div id="client1">
+            <h2>Client 1</h2>
+            <div id="messages-client1"></div>
+            <form id="message-form-client1">
+                <input type="text" id="message-input-client1">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+
+        <div id="client2">
+            <h2>Client 2</h2>
+            <div id="messages-client2"></div>
+            <form id="message-form-client2">
+                <input type="text" id="message-input-client2">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var socket = io();
+
+        // Client 1
+        var usernameClient1 = 'Client 1';
+        var messagesDivClient1 = document.getElementById('messages-client1');
+        var messageFormClient1 = document.getElementById('message-form-client1');
+        var messageInputClient1 = document.getElementById('message-input-client1');
+
+        messageFormClient1.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var message = messageInputClient1.value;
+            socket.emit('client_message', { room: 'client1', username: usernameClient1, message: message });
+            messageInputClient1.value = '';
+        });
+
+        socket.emit('join', { username: usernameClient1, room: 'client1' });
+
+        socket.on('client_message', function(data) {
+            if (data.username === usernameClient1) {
+                var messageDiv = document.createElement('div');
+                messageDiv.textContent = 'You: ' + data.message;
+                messagesDivClient1.appendChild(messageDiv);
+            } else {
+                var messageDiv = document.createElement('div');
+                messageDiv.textContent = data.username + ': ' + data.message;
+                messagesDivClient1.appendChild(messageDiv);
+            }
+        });
+
+        // Client 2
+        var usernameClient2 = 'Client 2';
+        var messagesDivClient2 = document.getElementById('messages-client2');
+        var messageFormClient2 = document.getElementById('message-form-client2');
+        var messageInputClient2 = document.getElementById('message-input-client2');
+
+        messageFormClient2.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var message = messageInputClient2.value;
+            socket.emit('client_message', { room: 'client2', username: usernameClient2, message: message });
+            messageInputClient2.value = '';
+        });
+
+        socket.emit('join', { username: usernameClient2, room: 'client2' });
+
+        socket.on('client_message', function(data) {
+            if (data.username === usernameClient2) {
+                var messageDiv = document.createElement('div');
+                messageDiv.textContent = 'You: ' + data.message;
+                messagesDivClient2.appendChild(messageDiv);
+            } else {
+                var messageDiv = document.createElement('div');
+                messageDiv.textContent = data.username + ': ' + data.message;
+                messagesDivClient2.appendChild(messageDiv);
+            }
+        });
+    </script>
+</body>
+</html>
